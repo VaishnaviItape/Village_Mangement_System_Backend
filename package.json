@@ -1,24 +1,27 @@
 {
-  "name": "village_mangement_system_backend",
+  "name": "bckend",
   "version": "1.0.0",
-  "description": "This is our Final Major project Backend",
-  "main": "index.js",
+  "description": "village backend",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "nodemon server.js",
+    "start": "nodemon server.js"
   },
-  "keywords": [],
-  "author": "",
+  "author": "Vaishnavi Itape",
   "license": "ISC",
   "dependencies": {
-    "bcryptjs": "^3.0.3",
+    "bcrypt": "^6.0.0",
+    "color": "^5.0.3",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^2.0.2",
     "mysql2": "^3.15.3",
-    "nodemailer": "^7.0.10"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.11"
+    "nodemailer": "^7.0.10",
+    "nodemon": "^3.1.11",
+    "xlsx": "^0.18.5"
   }
 }
