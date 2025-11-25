@@ -8,17 +8,22 @@ const app = express();
 app.use(cors()); // <--- Enable CORS here (MUST be before routes)
 app.use(express.json());
 
-// Routes
-app.use('/api/', require('./routes/VillageRoute'));
-app.use('/api/', require('./routes/StateRoute'));
-app.use('/api/', require('./routes/DistrictRoute'));
-app.use('/api/', require('./routes/userRoutes'));
-app.use('/api/', require('./routes/propertyRoutes'));
+
 app.use('/api/auth/', require('./routes/authRoutes'));
-app.use('/api/', require('./routes/schemaRoute'));
-app.use('/api/', require('./routes/taxRoutes'));
-app.use('/api/', require('./routes/complaintRoutes'));
+// Routes
 app.use('/api/', require('./routes/applicationRoutes'));
+app.use('/api/', require('./routes/citizenRoutes'));
+app.use('/api/', require('./routes/complaintRoutes'));
+app.use('/api/', require('./routes/DistrictRoute'));
+app.use('/api/', require('./routes/propertyRoutes'));
+app.use('/api/', require('./routes/notificationRoutes'));
+app.use('/api/', require('./routes/schemaRoute'));
+app.use('/api/', require('./routes/schemeApplicationsRoutes'));
+app.use('/api/', require('./routes/StateRoute'));
+app.use('/api/', require('./routes/taxRoutes'));
+app.use('/api/', require('./routes/userRoutes'));
+app.use('/api/', require('./routes/VillageRoute'));
+
 app.get('/', (req, res) => {
     res.send("Server Working!");
 });

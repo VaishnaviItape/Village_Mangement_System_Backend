@@ -10,14 +10,16 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const [userRows] = await db.query("SELECT * FROM users WHERE email=?", [email]);
+        const [userRows] = await db.query(
+            "SELECT * FROM users WHERE email=? OR username=?",
+            [email, email]
+        );
 
         if (!userRows.length)
             return res.status(404).send({ success: false, message: "Invalid Email or Password" });
 
         const user = userRows[0];
 
-        // Compare password
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch)
             return res.status(400).send({ success: false, message: "Invalid Email or Password" });
@@ -25,7 +27,11 @@ exports.login = async (req, res) => {
         if (!user.is_active)
             return res.status(403).send({ success: false, message: "Account disabled by admin" });
 
-        const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: "7d" });
+        const token = jwt.sign(
+            { id: user.id, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
 
         res.status(200).send({
             success: true,
@@ -33,10 +39,10 @@ exports.login = async (req, res) => {
             token,
             user: {
                 id: user.id,
-                name: user.full_name,
+                full_name: user.full_name,
                 email: user.email,
-                role: user.role,
-                profile_image: user.profile_image
+                username: user.username,
+                role: user.role
             }
         });
 
@@ -45,6 +51,8 @@ exports.login = async (req, res) => {
         res.status(500).send({ success: false, message: "Server Error" });
     }
 };
+
+
 
 // ---------------- REGISTER / ADD USER ----------------
 exports.register = async (req, res) => {
@@ -136,3 +144,39 @@ exports.resetPassword = async (req, res) => {
         res.status(500).send({ success: false, error });
     }
 };
+
+// ---------------- RESET PASSWORD ----------------
+exports.me = async (req, res) => {
+    try {
+        const userId = req.user.id; // comes from JWT decode
+        const [rows] = await db.query("SELECT id, full_name, username, email, role, is_active FROM users WHERE id=?", [userId]);
+
+        if (!rows.length)
+            return res.status(404).send({ success: false, message: "User not found" });
+
+        return res.send({
+            success: true,
+            user: rows[0]
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ success: false, error });
+    }
+};
+
+exports.logout = async (req, res) => {
+    const token = req.headers["authorization"]?.split(" ")[1];
+
+    if (!token)
+        return res.status(400).send({ success: false, message: "Token missing" });
+
+    // Optional: Add token to blacklist table if using blacklist strategy
+    // await db.query("INSERT INTO token_blacklist (token) VALUES (?)", [token]);
+
+    return res.status(200).send({
+        success: true,
+        message: "Logged out successfully"
+    });
+};
+
