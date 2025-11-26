@@ -23,6 +23,9 @@ app.use('/api/', require('./routes/StateRoute'));
 app.use('/api/', require('./routes/taxRoutes'));
 app.use('/api/', require('./routes/userRoutes'));
 app.use('/api/', require('./routes/VillageRoute'));
+app.use('/api/', require('./routes/dashboardRoutes'));
+app.use('/api/', require('./routes/gharPattiRoutes'));
+app.use('/api/', require('./routes/paniPattiRoutes'));
 
 app.get('/', (req, res) => {
     res.send("Server Working!");
