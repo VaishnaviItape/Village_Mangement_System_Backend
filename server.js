@@ -2,15 +2,17 @@ const express = require('express');
 const dotenv = require('dotenv');
 const mySqlPool = require('./config/db');
 const cors = require('cors');
+
 dotenv.config();
 const app = express();
 
-app.use(cors()); // <--- Enable CORS here (MUST be before routes)
+// Middleware
+app.use(cors());
 app.use(express.json());
 
-
-app.use('/api/auth/', require('./routes/authRoutes'));
 // Routes
+app.use('/api/chatbot', require('./routes/chatbotRoutes'));
+app.use('/api/auth/', require('./routes/authRoutes'));
 app.use('/api/', require('./routes/applicationRoutes'));
 app.use('/api/', require('./routes/citizenRoutes'));
 app.use('/api/', require('./routes/complaintRoutes'));
@@ -34,10 +36,10 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 8000;
 
 mySqlPool.query('SELECT 1')
-    .then(() => console.log("DB connected to:", process.env.DB_NAME),
-        console.log("MySQL connected"),
-        console.log("DB connected to:", process.env.DB_NAME)
-    )
+    .then(() => {
+        console.log("MySQL connected");
+        console.log("DB connected to:", process.env.DB_NAME);
+    })
     .catch(err => console.log(err));
 
 app.listen(PORT, () => {
