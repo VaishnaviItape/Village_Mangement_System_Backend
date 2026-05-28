@@ -28,6 +28,9 @@ app.use('/api/', require('./routes/VillageRoute'));
 app.use('/api/', require('./routes/dashboardRoutes'));
 app.use('/api/', require('./routes/gharPattiRoutes'));
 app.use('/api/', require('./routes/paniPattiRoutes'));
+app.use('/api/', require('./routes/certificatesRoutes'));
+app.use('/api/', require('./routes/panchayatMembersRoutes'));
+app.use('/api/', require('./routes/infrastructureRoutes'));
 
 app.get('/', (req, res) => {
     res.send("Server Working!");

@@ -19,6 +19,7 @@ router.post("/scheme-applications", createSchemeApplication);
 
 // UPDATE
 router.patch("/scheme-applications/:id", updateSchemeApplication);
+router.put("/scheme-applications/:id", updateSchemeApplication);
 
 // DELETE
 router.delete("/scheme-applications/:id", deleteSchemeApplication);
