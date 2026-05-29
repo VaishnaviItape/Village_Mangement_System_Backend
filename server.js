@@ -9,6 +9,7 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 
 // Routes
 app.use('/api/chatbot', require('./routes/chatbotRoutes'));
@@ -31,6 +32,7 @@ app.use('/api/', require('./routes/paniPattiRoutes'));
 app.use('/api/', require('./routes/certificatesRoutes'));
 app.use('/api/', require('./routes/panchayatMembersRoutes'));
 app.use('/api/', require('./routes/infrastructureRoutes'));
+app.use('/api/', require('./routes/talukaRoutes'));
 
 app.get('/', (req, res) => {
     res.send("Server Working!");

@@ -47,6 +47,36 @@ const getDashboardStats = async (req, res) => {
 
         const totalTaxAmount = totalGharPattiAmount + totalPaniPattiAmount;
 
+        // Chart Data Generation
+        const taxDistribution = [
+            { name: "Ghar Patti", value: parseFloat(totalGharPattiAmount) || 0 },
+            { name: "Pani Patti", value: parseFloat(totalPaniPattiAmount) || 0 }
+        ];
+
+        // Mock data for the last 6 months collection trend
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+        const collectionTrends = months.map(month => ({
+            name: month,
+            GharPatti: Math.floor(Math.random() * 5000) + 1000,
+            PaniPatti: Math.floor(Math.random() * 3000) + 500
+        }));
+
+        // Get recent complaints
+        const recentComplaintsResult = await db.query(`
+            SELECT c.id, c.category as type, c.status, c.created_at as date, 
+                   u.full_name as citizen, v.village_name as village 
+            FROM complaint c 
+            LEFT JOIN users u ON c.user_id = u.id 
+            LEFT JOIN village_table v ON u.village = v.id
+            ORDER BY c.created_at DESC LIMIT 5
+        `).catch(e => {
+            console.error("Error fetching recent complaints:", e);
+            // Fallback if schema doesn't perfectly match
+            return [[]];
+        });
+        
+        const recentComplaints = Array.isArray(recentComplaintsResult[0]) ? recentComplaintsResult[0] : [];
+
         res.status(200).send({
             success: true,
             message: "Dashboard Data Loaded Successfully",
@@ -69,6 +99,9 @@ const getDashboardStats = async (req, res) => {
                 totalGharPattiAmount,
                 totalPaniPattiAmount,
                 totalTaxAmount,
+                taxDistribution,
+                collectionTrends,
+                recentComplaints
             }
         });
 
