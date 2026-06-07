@@ -7,7 +7,7 @@ const getApplications = async (req, res) => {
         const [data] = await db.query("SELECT * FROM applications");
 
         if (!data.length) {
-            return res.status(404).send({ success: false, message: "No applications found" });
+            return res.status(200).send({ success: true, data: [] });
         }
 
         res.status(200).send({ success: true, data });

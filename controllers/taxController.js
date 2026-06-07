@@ -7,9 +7,9 @@ const getTaxes = async (req, res) => {
         const [data] = await db.query("SELECT * FROM tax");
 
         if (!data.length) {
-            return res.status(404).send({
-                success: false,
-                message: "No tax records found",
+            return res.status(200).send({
+                success: true,
+                data: [],
             });
         }
 

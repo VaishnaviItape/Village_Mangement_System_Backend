@@ -33,12 +33,17 @@ app.use('/api/', require('./routes/certificatesRoutes'));
 app.use('/api/', require('./routes/panchayatMembersRoutes'));
 app.use('/api/', require('./routes/infrastructureRoutes'));
 app.use('/api/', require('./routes/talukaRoutes'));
+app.use('/api/', require('./routes/reportsRoutes'));
+app.use('/api/', require('./routes/civicRoutes'));
+app.use('/api/', require('./routes/utilityRoutes'));
+app.use('/api/sv/', require('./routes/svRoutes'));
+app.use('/api/sv/', require('./routes/svExpansionRoutes'));
+app.use('/Messaging', require('./routes/messageRoutes'));
 
 app.get('/', (req, res) => {
     res.send("Server Working!");
 });
-
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8080;
 
 mySqlPool.query('SELECT 1')
     .then(() => {

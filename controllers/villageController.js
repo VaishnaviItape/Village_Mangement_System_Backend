@@ -2,7 +2,12 @@ const db = require("../config/db");
 
 const getVillage = async (req, res) => {
     try {
-        const [data] = await db.query("SELECT * FROM village_table");
+        const [data] = await db.query(`
+            SELECT v.*, s.state_name as StateName, d.district_name as DistrictName, s.id as StateID, d.id as DistrictID
+            FROM village_table v
+            LEFT JOIN states s ON v.State = s.id
+            LEFT JOIN districts d ON v.District = d.id
+        `);
 
         if (!data.length) {
             return res.status(404).send({
@@ -41,7 +46,11 @@ const getVillageById = async (req, res) => {
         }
 
         const [data] = await db.query(
-            "SELECT * FROM village_table WHERE VillageID = ?",
+            `SELECT v.*, s.state_name as StateName, d.district_name as DistrictName, s.id as StateID, d.id as DistrictID
+             FROM village_table v
+             LEFT JOIN states s ON v.State = s.id
+             LEFT JOIN districts d ON v.District = d.id
+             WHERE v.VillageID = ?`,
             [villageId]
         );
 

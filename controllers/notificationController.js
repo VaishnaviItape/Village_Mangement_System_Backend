@@ -7,7 +7,7 @@ const getNotifications = async (req, res) => {
         const [data] = await db.query("SELECT * FROM notification");
 
         if (!data.length) {
-            return res.status(404).send({ success: false, message: "No notifications found" });
+            return res.status(200).send({ success: true, data: [] });
         }
 
         res.status(200).send({ success: true, data });
