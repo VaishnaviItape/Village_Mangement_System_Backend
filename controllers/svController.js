@@ -34,6 +34,13 @@ exports.updateTradeLicenseStatus = async (req, res) => {
     } catch (e) { res.status(500).send({ success: false, error: e }); }
 };
 
+exports.deleteTradeLicense = async (req, res) => {
+    try {
+        await db.query("DELETE FROM trade_licenses WHERE id = ?", [req.params.id]);
+        res.status(200).send({ success: true, message: "Trade license deleted" });
+    } catch (e) { res.status(500).send({ success: false, error: e }); }
+};
+
 // --- LAND REGISTRATIONS ---
 exports.createLandRegistration = async (req, res) => {
     try {
@@ -68,6 +75,13 @@ exports.updateLandStatus = async (req, res) => {
     } catch (e) { res.status(500).send({ success: false, error: e }); }
 };
 
+exports.deleteLandRegistration = async (req, res) => {
+    try {
+        await db.query("DELETE FROM land_registrations WHERE id = ?", [req.params.id]);
+        res.status(200).send({ success: true, message: "Land registration deleted" });
+    } catch (e) { res.status(500).send({ success: false, error: e }); }
+};
+
 // --- GRAM SABHA ---
 exports.createMeeting = async (req, res) => {
     try {
@@ -86,9 +100,16 @@ exports.getMeetings = async (req, res) => {
 
 exports.updateMeeting = async (req, res) => {
     try {
-        const { minutes, status } = req.body;
-        await db.query("UPDATE gram_sabha_meetings SET minutes = ?, status = ? WHERE id = ?", [minutes, status, req.params.id]);
+        const { meeting_date, agenda, minutes, status } = req.body;
+        await db.query("UPDATE gram_sabha_meetings SET meeting_date = ?, agenda = ?, minutes = ?, status = ? WHERE id = ?", [meeting_date, agenda, minutes, status, req.params.id]);
         res.status(200).send({ success: true, message: "Meeting updated" });
+    } catch (e) { res.status(500).send({ success: false, error: e }); }
+};
+
+exports.deleteMeeting = async (req, res) => {
+    try {
+        await db.query("DELETE FROM gram_sabha_meetings WHERE id = ?", [req.params.id]);
+        res.status(200).send({ success: true, message: "Meeting deleted" });
     } catch (e) { res.status(500).send({ success: false, error: e }); }
 };
 
@@ -108,6 +129,21 @@ exports.getExpenses = async (req, res) => {
     } catch (e) { res.status(500).send({ success: false, error: e }); }
 };
 
+exports.updateExpense = async (req, res) => {
+    try {
+        const { category, amount, description, expense_date } = req.body;
+        await db.query("UPDATE panchayat_expenses SET category = ?, amount = ?, description = ?, expense_date = ? WHERE id = ?", [category, amount, description, expense_date, req.params.id]);
+        res.status(200).send({ success: true, message: "Expense updated" });
+    } catch (e) { res.status(500).send({ success: false, error: e }); }
+};
+
+exports.deleteExpense = async (req, res) => {
+    try {
+        await db.query("DELETE FROM panchayat_expenses WHERE id = ?", [req.params.id]);
+        res.status(200).send({ success: true, message: "Expense deleted" });
+    } catch (e) { res.status(500).send({ success: false, error: e }); }
+};
+
 // --- VENDORS ---
 exports.createVendor = async (req, res) => {
     try {
@@ -124,6 +160,21 @@ exports.getVendors = async (req, res) => {
     } catch (e) { res.status(500).send({ success: false, error: e }); }
 };
 
+exports.updateVendor = async (req, res) => {
+    try {
+        const { name, contact, service_type } = req.body;
+        await db.query("UPDATE vendors SET name = ?, contact = ?, service_type = ? WHERE id = ?", [name, contact, service_type, req.params.id]);
+        res.status(200).send({ success: true, message: "Vendor updated" });
+    } catch (e) { res.status(500).send({ success: false, error: e }); }
+};
+
+exports.deleteVendor = async (req, res) => {
+    try {
+        await db.query("DELETE FROM vendors WHERE id = ?", [req.params.id]);
+        res.status(200).send({ success: true, message: "Vendor deleted" });
+    } catch (e) { res.status(500).send({ success: false, error: e }); }
+};
+
 // --- ASSET MAINTENANCE ---
 exports.createMaintenance = async (req, res) => {
     try {
@@ -137,5 +188,20 @@ exports.getMaintenance = async (req, res) => {
     try {
         const [data] = await db.query("SELECT am.*, i.asset_name FROM asset_maintenance am JOIN infrastructure i ON am.asset_id = i.asset_id");
         res.status(200).send({ success: true, data });
+    } catch (e) { res.status(500).send({ success: false, error: e }); }
+};
+
+exports.updateMaintenance = async (req, res) => {
+    try {
+        const { asset_id, maintenance_date, cost, description } = req.body;
+        await db.query("UPDATE asset_maintenance SET asset_id = ?, maintenance_date = ?, cost = ?, description = ? WHERE id = ?", [asset_id, maintenance_date, cost, description, req.params.id]);
+        res.status(200).send({ success: true, message: "Maintenance updated" });
+    } catch (e) { res.status(500).send({ success: false, error: e }); }
+};
+
+exports.deleteMaintenance = async (req, res) => {
+    try {
+        await db.query("DELETE FROM asset_maintenance WHERE id = ?", [req.params.id]);
+        res.status(200).send({ success: true, message: "Maintenance deleted" });
     } catch (e) { res.status(500).send({ success: false, error: e }); }
 };

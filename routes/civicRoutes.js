@@ -20,5 +20,6 @@ router.get("/civic", auth, civicController.getAllRegistrations);
 router.get("/civic/my", auth, civicController.getMyRegistrations);
 router.post("/civic", auth, upload.single("document"), civicController.createRegistration);
 router.put("/civic/:id", auth, civicController.updateRegistrationStatus);
+router.delete("/civic/:id", auth, civicController.deleteRegistration);
 
 module.exports = router;

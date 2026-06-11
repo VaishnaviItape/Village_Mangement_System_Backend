@@ -42,8 +42,8 @@ const getDashboardStats = async (req, res) => {
         const totalGharPattiBills = getRows(results[13])[0].totalGharPatti || 0;
         const totalPaniPattiBills = getRows(results[14])[0].totalPaniPatti || 0;
 
-        const totalGharPattiAmount = getRows(results[15])[0].totalGharPattiAmount || 0;
-        const totalPaniPattiAmount = getRows(results[16])[0].totalPaniPattiAmount || 0;
+        const totalGharPattiAmount = parseFloat(getRows(results[15])[0].totalGharPattiAmount) || 0;
+        const totalPaniPattiAmount = parseFloat(getRows(results[16])[0].totalPaniPattiAmount) || 0;
 
         const totalTaxAmount = totalGharPattiAmount + totalPaniPattiAmount;
 
@@ -53,21 +53,60 @@ const getDashboardStats = async (req, res) => {
             { name: "Pani Patti", value: parseFloat(totalPaniPattiAmount) || 0 }
         ];
 
-        // Mock data for the last 6 months collection trend
-        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"];
-        const collectionTrends = months.map(month => ({
-            name: month,
-            GharPatti: Math.floor(Math.random() * 5000) + 1000,
-            PaniPatti: Math.floor(Math.random() * 3000) + 500
-        }));
+        // Dynamic data for the last 6 months collection trend
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const collectionTrends = [];
+        const currentDate = new Date();
+        
+        for (let i = 5; i >= 0; i--) {
+            const d = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+            collectionTrends.push({
+                name: monthNames[d.getMonth()],
+                monthNum: d.getMonth() + 1,
+                yearNum: d.getFullYear(),
+                GharPatti: 0,
+                PaniPatti: 0
+            });
+        }
+
+        // Fetch aggregated data from gharpatti_bills
+        const [gharPattiTrends] = await db.query(`
+            SELECT MONTH(createdAt) as m, YEAR(createdAt) as y, SUM(amount) as total
+            FROM gharpatti_bills
+            WHERE createdAt >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+            GROUP BY y, m
+        `);
+
+        // Fetch aggregated data from panipatti_bills
+        const [paniPattiTrends] = await db.query(`
+            SELECT MONTH(createdAt) as m, YEAR(createdAt) as y, SUM(amount) as total
+            FROM panipatti_bills
+            WHERE createdAt >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+            GROUP BY y, m
+        `);
+
+        // Merge into collectionTrends
+        collectionTrends.forEach(trend => {
+            const gp = gharPattiTrends.find(g => g.m === trend.monthNum && g.y === trend.yearNum);
+            if (gp) trend.GharPatti = parseFloat(gp.total) || 0;
+
+            const pp = paniPattiTrends.find(p => p.m === trend.monthNum && p.y === trend.yearNum);
+            if (pp) trend.PaniPatti = parseFloat(pp.total) || 0;
+        });
+
+        // Clean up helper fields
+        collectionTrends.forEach(trend => {
+            delete trend.monthNum;
+            delete trend.yearNum;
+        });
 
         // Get recent complaints
         const recentComplaintsResult = await db.query(`
-            SELECT c.id, c.category as type, c.status, c.created_at as date, 
-                   u.full_name as citizen, v.village_name as village 
+            SELECT c.complaint_id as id, c.category as type, c.status, c.created_at as date, 
+                   cz.full_name as citizen, v.VillageName as village 
             FROM complaint c 
-            LEFT JOIN users u ON c.user_id = u.id 
-            LEFT JOIN village_table v ON u.village = v.id
+            LEFT JOIN citizen cz ON c.user_id = cz.user_id 
+            LEFT JOIN village_table v ON cz.VillageID = v.VillageID
             ORDER BY c.created_at DESC LIMIT 5
         `).catch(e => {
             console.error("Error fetching recent complaints:", e);

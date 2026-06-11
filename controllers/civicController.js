@@ -6,7 +6,7 @@ const getAllRegistrations = async (req, res) => {
         const [registrations] = await db.query(`
             SELECT c.*, u.full_name as user_name 
             FROM civic_registrations c
-            JOIN users u ON c.user_id = u.user_id
+            JOIN users u ON c.user_id = u.id
             ORDER BY c.created_at DESC
         `);
         res.status(200).send({ success: true, data: registrations });
@@ -81,4 +81,16 @@ const updateRegistrationStatus = async (req, res) => {
     }
 };
 
-module.exports = { getAllRegistrations, getMyRegistrations, createRegistration, updateRegistrationStatus };
+// Delete Registration (For Admin)
+const deleteRegistration = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await db.query("DELETE FROM civic_registrations WHERE id = ?", [id]);
+        res.status(200).send({ success: true, message: "Registration deleted successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ success: false, message: "Failed to delete registration", error });
+    }
+};
+
+module.exports = { getAllRegistrations, getMyRegistrations, createRegistration, updateRegistrationStatus, deleteRegistration };

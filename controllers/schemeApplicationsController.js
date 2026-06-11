@@ -32,20 +32,21 @@ exports.getSchemeApplicationById = async (req, res) => {
 // Create a new scheme application
 exports.createSchemeApplication = async (req, res) => {
     try {
-        const { user_id, scheme_id, eligibility_score } = req.body;
+        const { user_id, scheme_id, eligibility_score, documents } = req.body;
 
         if (!user_id || !scheme_id) {
             return res.status(400).send({ success: false, message: "user_id and scheme_id are required" });
         }
 
         const scheme_application_id = uuidv4();
+        const documentsJson = documents ? JSON.stringify(documents) : null;
 
         await db.query(
-            "INSERT INTO scheme_applications (scheme_application_id, user_id, scheme_id, eligibility_score) VALUES (?, ?, ?, ?)",
-            [scheme_application_id, user_id, scheme_id, eligibility_score || null]
+            "INSERT INTO scheme_applications (scheme_application_id, user_id, scheme_id, eligibility_score, documents) VALUES (?, ?, ?, ?, ?)",
+            [scheme_application_id, user_id, scheme_id, eligibility_score || null, documentsJson]
         );
 
-        res.status(201).send({ success: true, message: "Scheme application created successfully", data: { scheme_application_id, user_id, scheme_id, eligibility_score } });
+        res.status(201).send({ success: true, message: "Scheme application created successfully", data: { scheme_application_id, user_id, scheme_id, eligibility_score, documents } });
     } catch (error) {
         console.error(error);
         res.status(500).send({ success: false, message: "Failed to create scheme application", error });
