@@ -17,6 +17,44 @@ const getNotifications = async (req, res) => {
     }
 };
 
+// Get my notifications
+const getMyNotifications = async (req, res) => {
+    try {
+        const userId = req.query.user_id || req.user?.id;
+        let query = "SELECT * FROM notification";
+        let params = [];
+        if (userId) {
+            query += " WHERE user_id = ?";
+            params.push(userId);
+        }
+        
+        query += " ORDER BY created_at DESC";
+
+        const [data] = await db.query(query, params);
+        res.status(200).send({ success: true, data: data || [] });
+    } catch (error) {
+        // If created_at does not exist, fallback to no order
+        if (error.code === 'ER_BAD_FIELD_ERROR') {
+            try {
+                const userId = req.query.user_id || req.user?.id;
+                let query = "SELECT * FROM notification";
+                let params = [];
+                if (userId) {
+                    query += " WHERE user_id = ?";
+                    params.push(userId);
+                }
+                const [data] = await db.query(query, params);
+                return res.status(200).send({ success: true, data: data || [] });
+            } catch (err2) {
+                console.error(err2);
+                return res.status(500).send({ success: false, message: "Error fetching my notifications", error: err2 });
+            }
+        }
+        console.error(error);
+        res.status(500).send({ success: false, message: "Error fetching my notifications", error });
+    }
+};
+
 // Get notification by ID
 const getNotificationById = async (req, res) => {
     try {
@@ -123,4 +161,4 @@ const deleteNotification = async (req, res) => {
     }
 };
 
-module.exports = { getNotifications, getNotificationById, createNotification, updateNotification, deleteNotification };
+module.exports = { getNotifications, getMyNotifications, getNotificationById, createNotification, updateNotification, deleteNotification };

@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require("uuid");
 exports.getInfrastructure = async (req, res) => {
     try {
         const [data] = await db.query("SELECT * FROM infrastructure");
-        if (!data.length) return res.status(404).send({ success: false, message: "No infrastructure assets found" });
+        if (!data.length) return res.status(200).send({ success: true, data: [] });
 
         res.status(200).send({ success: true, data });
     } catch (error) {

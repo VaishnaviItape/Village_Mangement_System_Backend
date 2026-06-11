@@ -1,6 +1,7 @@
 const express = require("express");
 const {
     getNotifications,
+    getMyNotifications,
     getNotificationById,
     createNotification,
     updateNotification,
@@ -8,6 +9,9 @@ const {
 } = require("../controllers/notificationController");
 
 const router = express.Router();
+
+// GET my notifications
+router.get("/notifications/my", getMyNotifications);
 
 // GET all notifications
 router.get("/notifications", getNotifications);

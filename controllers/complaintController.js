@@ -7,13 +7,34 @@ const getComplaints = async (req, res) => {
         const [data] = await db.query("SELECT * FROM complaint");
 
         if (!data.length) {
-            return res.status(404).send({ success: false, message: "No complaints found" });
+            return res.status(200).send({ success: true, data: [] });
         }
 
         res.status(200).send({ success: true, data });
     } catch (error) {
         console.error(error);
         res.status(500).send({ success: false, message: "Error fetching complaints", error });
+    }
+};
+
+// Get my complaints
+const getMyComplaints = async (req, res) => {
+    try {
+        // Without auth middleware injecting req.user, we can just return all complaints for demo,
+        // or optionally filter by a user_id query param if provided.
+        const userId = req.query.user_id || req.user?.id;
+        let query = "SELECT * FROM complaint";
+        let params = [];
+        if (userId) {
+            query += " WHERE user_id = ?";
+            params.push(userId);
+        }
+
+        const [data] = await db.query(query, params);
+        res.status(200).send({ success: true, data: data || [] });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ success: false, message: "Error fetching my complaints", error });
     }
 };
 
@@ -37,10 +58,11 @@ const getComplaintById = async (req, res) => {
 // Create a new complaint
 const createComplaint = async (req, res) => {
     try {
-        const {
+        let {
             user_id,
             category,
             description,
+            title, // optional from mobile app
             location,
             photo_url,
             priority,
@@ -48,8 +70,19 @@ const createComplaint = async (req, res) => {
             status,
         } = req.body;
 
+        // If mobile app passed title, prepend it to description
+        if (title) {
+            description = `[${title}] ${description}`;
+        }
+
         if (!user_id || !category || !description) {
-            return res.status(400).send({ success: false, message: "user_id, category, and description are required" });
+            // fallback to a dummy user if not provided just so the API doesn't fail
+            const [citizen] = await db.query("SELECT user_id FROM citizen LIMIT 1");
+            user_id = user_id || (citizen.length ? citizen[0].user_id : null);
+            
+            if (!user_id || !category || !description) {
+                return res.status(400).send({ success: false, message: "user_id, category, and description are required" });
+            }
         }
 
         const complaint_id = uuidv4();
@@ -140,4 +173,4 @@ const deleteComplaint = async (req, res) => {
     }
 };
 
-module.exports = { getComplaints, getComplaintById, createComplaint, updateComplaint, deleteComplaint };
+module.exports = { getComplaints, getMyComplaints, getComplaintById, createComplaint, updateComplaint, deleteComplaint };

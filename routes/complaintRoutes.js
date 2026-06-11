@@ -1,6 +1,7 @@
 const express = require("express");
 const {
     getComplaints,
+    getMyComplaints,
     getComplaintById,
     createComplaint,
     updateComplaint,
@@ -8,6 +9,9 @@ const {
 } = require("../controllers/complaintController");
 
 const router = express.Router();
+
+// GET my complaints
+router.get("/complaints/my", getMyComplaints);
 
 // GET all complaints
 router.get("/complaints", getComplaints);
